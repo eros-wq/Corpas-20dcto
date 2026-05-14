@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corpas · Análisis Meta Ads · Mayo 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;1,300;1,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #1A1A1A;
+    --yellow: #FFC000;
+    --white: #FFFFFF;
+    --bg: #F5F5F5;
+    --t1: #1A1A1A;
+    --t2: #333333;
+    --t3: #999999;
+    --t4: #666666;
+    --green: #4CAF50;
+    --red: #EF5350;
+    --border: #E0E0E0;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #DCDCDC;
+    color: var(--t1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 32px 16px;
+  }
+
+  /* ── Slide container ── */
+  .slide {
+    width: 960px;
+    min-height: 540px;
+    background: var(--bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── Navigation dots ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin: 8px 0 0;
+  }
+  .nav a {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #999;
+    display: block;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--yellow); }
+
+  /* ── Header bar ── */
+  .header {
+    background: var(--black);
+    border-radius: 10px 10px 0 0;
+    padding: 10px 20px 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .logo {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--yellow);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo svg { width: 22px; height: 22px; }
+  .header-title {
+    font-size: 17px;
+    color: var(--white);
+    font-weight: 400;
+    line-height: 1.2;
+  }
+  .header-title strong { font-weight: 700; font-style: italic; }
+
+  /* ── Subtitle ── */
+  .subtitle {
+    font-size: 8.5px;
+    color: var(--t4);
+    font-style: italic;
+    font-weight: 300;
+    padding: 6px 20px 0;
+    flex-shrink: 0;
+  }
+
+  /* ── Slide body ── */
+  .body {
+    padding: 10px 20px 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* ── KPI row ── */
+  .kpi-row {
+    display: grid;
+    gap: 8px;
+  }
+  .kpi-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .kpi-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .kpi-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .kpi {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 8px 14px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .kpi::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: var(--yellow);
+  }
+  .kpi-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--t1);
+    line-height: 1.1;
+  }
+  .kpi-val.green { color: var(--green); }
+  .kpi-val.red   { color: var(--red); }
+  .kpi-label {
+    font-size: 8px;
+    font-weight: 600;
+    color: var(--t2);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+  .kpi-sub {
+    font-size: 7px;
+    color: var(--t3);
+    font-weight: 300;
+    margin-top: 2px;
+    line-height: 1.3;
+  }
+
+  /* ── Table ── */
+  .tbl-wrap { overflow: hidden; border-radius: 6px; border: 0.5px solid var(--border); flex-shrink: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 8px; }
+  table th {
+    background: var(--black);
+    color: var(--white);
+    font-weight: 600;
+    padding: 6px 8px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  table th.hl { background: var(--yellow); color: var(--black); }
+  table td {
+    padding: 5px 8px;
+    border-bottom: 0.5px solid #EEEEEE;
+    color: var(--t2);
+    font-weight: 300;
+    text-align: center;
+    white-space: nowrap;
+  }
+  table td.left { text-align: left; font-size: 7.5px; }
+  table tr.row-hl td { background: var(--yellow); color: var(--black); font-weight: 600; }
+  table tr.row-alt td { background: #F9F9F9; }
+  table tr:last-child td { border-bottom: none; }
+
+  /* ── Insight bar ── */
+  .insight {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+  .insight-accent { width: 6px; background: var(--yellow); flex-shrink: 0; }
+  .insight-text {
+    font-size: 7.5px;
+    color: var(--t4);
+    font-weight: 300;
+    padding: 7px 12px;
+    line-height: 1.5;
+  }
+  .insight-text strong { font-weight: 600; color: var(--t2); }
+
+  /* ── Note ── */
+  .note {
+    font-size: 6.5px;
+    color: var(--t3);
+    font-style: italic;
+    font-weight: 300;
+    padding: 2px 0 0;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-block;
+    font-size: 7px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .badge-red    { background: var(--red);   color: #fff; }
+  .badge-green  { background: var(--green); color: #fff; }
+  .badge-yellow { background: var(--yellow); color: var(--black); }
+
+  /* ── Bar chart ── */
+  .bars { display: flex; flex-direction: column; gap: 5px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; }
+  .bar-label { font-size: 7px; color: var(--t2); width: 160px; flex-shrink: 0; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; background: #EEEEEE; border-radius: 3px; height: 14px; position: relative; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; padding-left: 6px; }
+  .bar-fill span { font-size: 6.5px; font-weight: 600; color: var(--black); white-space: nowrap; }
+  .bar-val { font-size: 7px; color: var(--t3); width: 60px; flex-shrink: 0; }
+
+  /* ── 3-col cards ── */
+  .prog-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
+  .prog-card {
+    background: var(--white);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .prog-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 5px;
+    background: var(--yellow);
+  }
+  .prog-card h3 { font-size: 14px; font-weight: 700; color: var(--t1); }
+  .prog-card .divider { height: 0.5px; background: var(--border); margin: 2px 0; }
+  .prog-card p { font-size: 7.5px; color: var(--t4); font-weight: 300; line-height: 1.5; }
+  .prog-card .acc-label { font-size: 7.5px; font-weight: 600; color: var(--t2); margin-top: 2px; }
+  .prog-card .acc-body {
+    font-size: 7.5px; color: var(--t4); font-weight: 300;
+    border-left: 4px solid var(--yellow);
+    padding-left: 8px;
+    line-height: 1.6;
+  }
+
+  /* ── Cover slide ── */
+  .slide.cover { background: var(--black); min-height: 540px; justify-content: center; align-items: center; gap: 0; }
+  .cover-logo { width: 72px; height: 72px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .cover-logo svg { width: 40px; height: 40px; }
+  .cover-title { font-size: 36px; font-weight: 700; color: var(--white); text-align: center; line-height: 1.15; }
+  .cover-sub { font-size: 15px; color: var(--yellow); font-style: italic; font-weight: 300; text-align: center; margin-top: 10px; }
+  .cover-progs { font-size: 10px; color: var(--t3); text-align: center; margin-top: 8px; }
+  .cover-line { width: 200px; height: 4px; background: var(--yellow); border-radius: 2px; margin: 14px auto; }
+  .cover-period { font-size: 8.5px; color: var(--t3); text-align: center; }
+
+  /* ── Period badge ── */
+  .period-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--white); border: 0.5px solid var(--border);
+    border-radius: 20px; padding: 3px 10px; font-size: 7px; color: var(--t3);
+    font-weight: 300; margin-bottom: 4px;
+  }
+  .period-tag .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── Print ── */
+  @media print {
+    body { background: white; padding: 0; gap: 0; }
+    .slide { box-shadow: none; border-radius: 0; page-break-after: always; width: 100%; }
+    .nav { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGO SVG reutilizable -->
+<svg style="display:none">
+  <symbol id="adcom-logo" viewBox="0 0 40 40">
+    <circle cx="13" cy="20" r="7" fill="#1A1A1A"/>
+    <circle cx="27" cy="20" r="7" fill="#1A1A1A"/>
+    <circle cx="20" cy="14" r="7" fill="#1A1A1A"/>
+  </symbol>
+</svg>
+
+<div class="nav">
+  <a href="#s1" title="Portada"></a>
+  <a href="#s2" title="Resumen"></a>
+  <a href="#s3" title="Medicina"></a>
+  <a href="#s4" title="Enfermería"></a>
+  <a href="#s5" title="Lenguas"></a>
+  <a href="#s6" title="Conclusiones"></a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 1 — PORTADA -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide cover" id="s1">
+  <div class="cover-logo">
+    <svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg>
+  </div>
+  <div class="cover-title">Análisis de Campaña<br>Meta Ads</div>
+  <div class="cover-sub">Estrategia 20% dcto (mayo) vs. 25% dcto matrícula (abril)</div>
+  <div class="cover-progs">Medicina · Enfermería · Lic. Lenguas Ext.</div>
+  <div class="cover-line"></div>
+  <div style="display:flex;gap:24px;justify-content:center;align-items:center;margin-bottom:6px;">
+    <div class="period-tag"><span class="dot" style="background:#FFC000"></span>Mayo 2026 · 1–14 (14 días)</div>
+    <div style="font-size:9px;color:#666">vs.</div>
+    <div class="period-tag"><span class="dot" style="background:#888"></span>Abril 2026 · 1–30 (30 días)</div>
+  </div>
+  <div class="cover-period">⚠ Los períodos tienen diferente duración — leer comparación en términos relativos</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 2 — RESUMEN CONSOLIDADO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s2">
+  <div class="header">
+    <div class="logo"><svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg></div>
+    <div class="header-title">Resumen consolidado — <strong>todos los programas</strong></div>
+  </div>
+  <div class="subtitle">Mayo 1–14 (14 días) vs. Abril 1–30 (30 días) · Objetivo: leads a landing · Programas: Medicina, Enfermería, Lic. Lenguas Ext.</div>
+  <div class="body">
+
+    <!-- Período tags -->
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="period-tag"><span class="dot" style="background:#FFC000"></span>Mayo · 14 días activos</div>
+      <div class="period-tag"><span class="dot" style="background:#888"></span>Abril · 30 días completos</div>
+      <div style="font-size:7px;color:var(--red);font-weight:600;">⚠ Períodos de diferente duración — comparación relativa</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-row cols-5">
+      <div class="kpi">
+        <div class="kpi-val">85</div>
+        <div class="kpi-label">Total leads mayo</div>
+        <div class="kpi-sub">14 días · 3 programas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">192</div>
+        <div class="kpi-label">Total leads abril</div>
+        <div class="kpi-sub">30 días · 3 programas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">31</div>
+        <div class="kpi-label">Leads 20% dcto (mayo)</div>
+        <div class="kpi-sub">Solo Enfermería lo escala</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">66</div>
+        <div class="kpi-label">Leads 25% dcto (abril)</div>
+        <div class="kpi-sub">30 días · 3 programas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">$28.4k</div>
+        <div class="kpi-label">Mejor CPR — 20% dcto</div>
+        <div class="kpi-sub">Enfermería · mayo</div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left;width:28%">Estrategia / Programa</th>
+            <th class="hl">Leads mayo<br><span style="font-weight:300;font-size:7px">(14 días)</span></th>
+            <th>Leads abril<br><span style="font-weight:300;font-size:7px">(30 días)</span></th>
+            <th>Inversión mayo</th>
+            <th>CPR mayo</th>
+            <th>CPR abril</th>
+            <th>Driver mayo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-hl">
+            <td class="left">20% dcto — Enfermería</td>
+            <td>29</td><td>0*</td><td>$822k</td><td>$28.4k</td><td>—</td>
+            <td>estatico_20dcto</td>
+          </tr>
+          <tr>
+            <td class="left">25% dcto — Medicina</td>
+            <td>0*</td><td>30</td><td>—</td><td>—</td><td>$50.7k</td>
+            <td>estatico_25dcto</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="left">25% dcto — Enfermería</td>
+            <td>0*</td><td>19</td><td>—</td><td>—</td><td>$32.8k</td>
+            <td>estatico_25dcto</td>
+          </tr>
+          <tr>
+            <td class="left">25% dcto — Lenguas</td>
+            <td>0*</td><td>17</td><td>—</td><td>—</td><td>$27.8k</td>
+            <td>estatico_25dcto</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="left">Otros — Medicina</td>
+            <td>30</td><td>79</td><td>$1.75M</td><td>$58.3k</td><td>$43.1k</td>
+            <td>video_estudiar (87%)</td>
+          </tr>
+          <tr>
+            <td class="left">Otros — Enfermería</td>
+            <td>2</td><td>27</td><td>$106k</td><td>$53.0k</td><td>$44.3k</td>
+            <td>valorsemestre</td>
+          </tr>
+          <tr class="row-alt">
+            <td class="left">Otros — Lenguas</td>
+            <td>22</td><td>20</td><td>$467k</td><td>$21.2k</td><td>$23.7k</td>
+            <td>valorsemestre (61%)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">* El 20dcto solo existe desde el 30 de abril — no había en abril. El 25dcto quedó inactivo en mayo. Comparación entre estrategias, no períodos idénticos.</div>
+
+    <div class="insight">
+      <div class="insight-accent"></div>
+      <div class="insight-text">
+        <strong>Lectura clave:</strong> En 14 días de mayo se generaron 85 leads vs. 192 en 30 días de abril — ritmo diario similar (~6 vs. ~6.4/día). El 20% dcto funciona claramente en <strong>Enfermería</strong> pero no escala en Medicina ni Lenguas, donde el mensaje de valor semestre y el contenido de video son los drivers reales.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 3 — MEDICINA -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s3">
+  <div class="header">
+    <div class="logo"><svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg></div>
+    <div class="header-title">Medicina — <strong>análisis por anuncio</strong></div>
+  </div>
+  <div class="subtitle">Mayo 1–14 (14 días) vs. Abril 1–30 (30 días) · El 20dcto existe solo desde el 30/04 · El driver real es un video de contenido</div>
+  <div class="body">
+
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="period-tag"><span class="dot" style="background:#FFC000"></span>Mayo · 14 días · 31 leads</div>
+      <div class="period-tag"><span class="dot" style="background:#888"></span>Abril · 30 días · 109 leads</div>
+    </div>
+
+    <div class="kpi-row cols-5">
+      <div class="kpi">
+        <div class="kpi-val">31</div>
+        <div class="kpi-label">Leads mayo (14 días)</div>
+        <div class="kpi-sub">~2.2 leads/día</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">109</div>
+        <div class="kpi-label">Leads abril (30 días)</div>
+        <div class="kpi-sub">~3.6 leads/día</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val red">1</div>
+        <div class="kpi-label">Leads 20% dcto</div>
+        <div class="kpi-sub">3.2% del total mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">87%</div>
+        <div class="kpi-label">Share video contenido</div>
+        <div class="kpi-sub">video_estudiarmedicinaenlacorpas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">$50.7k</div>
+        <div class="kpi-label">CPR 25% dcto abril</div>
+        <div class="kpi-sub">referencia mes pasado</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex:1;">
+      <!-- Tabla -->
+      <div style="flex:1.1;">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio</th>
+                <th class="hl">Leads mayo</th>
+                <th>Share</th>
+                <th>CPR mayo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="left">video_estudiarmedicinaenlacorpas_15-04</td>
+                <td>27</td><td>87.1%</td><td>$55.4k</td>
+              </tr>
+              <tr class="row-alt">
+                <td class="left">estatico_hombre-ajuste_registrarte</td>
+                <td>1</td><td>3.2%</td><td>$77.0k</td>
+              </tr>
+              <tr>
+                <td class="left">video_ajuste_buscasunauniversidad</td>
+                <td>1</td><td>3.2%</td><td>$13.1k</td>
+              </tr>
+              <tr class="row-alt">
+                <td class="left">video_sicreesqueestudiarmedicina</td>
+                <td>1</td><td>3.2%</td><td>$131.7k</td>
+              </tr>
+              <tr class="row-hl">
+                <td class="left">estatico_medicina_20dcto_30-04 ★</td>
+                <td>1</td><td>3.2%</td><td>$51.7k</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note" style="margin-top:4px;">★ Anuncio de la estrategia 20dcto · Lanzado 30 abril — solo 14 días de rodaje</div>
+
+        <!-- Abril top -->
+        <div style="margin-top:8px;font-size:7.5px;font-weight:600;color:var(--t2);margin-bottom:4px;">Top anuncios abril (30 días · 109 leads)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio</th>
+                <th>Leads</th><th>Share</th><th>CPR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="left">estatico_medicina_25dcto_27-03</td><td>29</td><td>26.6%</td><td>$50.6k</td></tr>
+              <tr class="row-alt"><td class="left">video_tevessalvandovidas_14-oct</td><td>21</td><td>19.3%</td><td>$37.5k</td></tr>
+              <tr><td class="left">estatico_medicina_valorsemestre_11-04</td><td>20</td><td>18.3%</td><td>$39.0k</td></tr>
+              <tr class="row-alt"><td class="left">estatico_hombre_registrarte</td><td>8</td><td>7.3%</td><td>$38.3k</td></tr>
+              <tr><td class="left">Otros anuncios (6)</td><td>31</td><td>25.5%</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Barras mayo -->
+      <div style="flex:0.9;display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);">Share de leads mayo — Medicina</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">video_estudiarmedicinaenlacorpas</div>
+            <div class="bar-track"><div class="bar-fill" style="width:87.1%;background:#FFC000"><span>27 leads · 87.1%</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">estatico_20dcto_30-04</div>
+            <div class="bar-track"><div class="bar-fill" style="width:3.2%;background:#1A1A1A"><span></span></div></div>
+            <div class="bar-val" style="font-size:7px;color:var(--t3);">1 lead · 3.2%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Otros anuncios (3)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:9.6%;background:#AAAAAA"><span>3 leads · 9.6%</span></div></div>
+          </div>
+        </div>
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);margin-top:8px;">Ritmo diario de leads</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">Mayo (14 días)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:61%;background:#FFC000"><span>2.2 leads/día</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Abril (30 días)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:#CCCCCC"><span>3.6 leads/día</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-accent"></div>
+      <div class="insight-text">
+        <strong>Medicina:</strong> El 20dcto aporta solo 1 de 31 leads en mayo. El driver real es <strong>video_estudiarmedicinaenlacorpas</strong> con el 87% del volumen. En abril, el 25dcto concentró el 26.6% con CPR de $50.7k. El ritmo diario bajó de 3.6 a 2.2 leads/día — en parte por la diferencia de días activos.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 4 — ENFERMERÍA -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s4">
+  <div class="header">
+    <div class="logo"><svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg></div>
+    <div class="header-title">Enfermería — <strong>20% dcto el driver claro</strong></div>
+  </div>
+  <div class="subtitle">Mayo 1–14 (14 días) vs. Abril 1–30 (30 días) · Único programa donde el 20dcto escala con éxito · CPR más eficiente del portafolio</div>
+  <div class="body">
+
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="period-tag"><span class="dot" style="background:#FFC000"></span>Mayo · 14 días · 31 leads</div>
+      <div class="period-tag"><span class="dot" style="background:#888"></span>Abril · 30 días · 46 leads</div>
+    </div>
+
+    <div class="kpi-row cols-5">
+      <div class="kpi">
+        <div class="kpi-val green">29</div>
+        <div class="kpi-label">Leads 20% dcto</div>
+        <div class="kpi-sub">93.5% del total mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val green">$28.4k</div>
+        <div class="kpi-label">CPR 20% dcto</div>
+        <div class="kpi-sub">Mejor CPR del portafolio</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">19</div>
+        <div class="kpi-label">Leads 25% dcto (abril)</div>
+        <div class="kpi-sub">41.3% del total abril</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">$32.8k</div>
+        <div class="kpi-label">CPR 25% dcto (abril)</div>
+        <div class="kpi-sub">referencia mes pasado</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val green">−14%</div>
+        <div class="kpi-label">Mejora en CPR</div>
+        <div class="kpi-sub">20dcto vs. 25dcto</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex:1;">
+      <div style="flex:1;">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio — Mayo</th>
+                <th class="hl">Leads</th><th>Share</th><th>Inversión</th><th>CPR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-hl">
+                <td class="left">estatico_enfermeria_20dcto_30-04 ★</td>
+                <td>29</td><td>93.5%</td><td>$822k</td><td>$28.4k</td>
+              </tr>
+              <tr>
+                <td class="left">estatico_valorsemestre2026-2_18-03</td>
+                <td>2</td><td>6.5%</td><td>$106k</td><td>$53.0k</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:10px;font-size:7.5px;font-weight:600;color:var(--t2);margin-bottom:4px;">Top anuncios abril (30 días · 46 leads)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio</th>
+                <th>Leads</th><th>Share</th><th>CPR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="left">estatico_valorsemestre2026-2_18-03</td><td>19</td><td>41.3%</td><td>$40.6k</td></tr>
+              <tr class="row-alt"><td class="left">estatico_enfermeria_25dcto_27-03</td><td>18</td><td>39.1%</td><td>$31.3k</td></tr>
+              <tr><td class="left">estatico_enfermeria_valorsemestre_11-04</td><td>7</td><td>15.2%</td><td>$38.0k</td></tr>
+              <tr class="row-alt"><td class="left">Otros (2)</td><td>2</td><td>4.4%</td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="flex:0.9;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);">Comparativo CPR por estrategia</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">20dcto mayo</div>
+            <div class="bar-track"><div class="bar-fill" style="width:65%;background:#FFC000"><span>$28.4k — mejor</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">25dcto abril</div>
+            <div class="bar-track"><div class="bar-fill" style="width:75%;background:#AAAAAA"><span>$32.8k</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Otros mayo</div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:#DDDDDD"><span style="color:#666">$53.0k</span></div></div>
+          </div>
+        </div>
+
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);margin-top:6px;">Leads por tipo de mensaje</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">20dcto — mayo</div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:#FFC000"><span>29 leads (93.5%)</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">25dcto — abril</div>
+            <div class="bar-track"><div class="bar-fill" style="width:62%;background:#9FE1CB"><span>19 leads (41.3%)</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Valor sem. — abril</div>
+            <div class="bar-track"><div class="bar-fill" style="width:65%;background:#CCCCCC"><span>19 leads (41.3%)</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">Valor sem. — mayo</div>
+            <div class="bar-track"><div class="bar-fill" style="width:7%;background:#AAAAAA"><span></span></div></div>
+            <div class="bar-val">2 leads</div>
+          </div>
+        </div>
+        <div class="note">⚠ Abril completo (30 días). Mayo solo 14 días.</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-accent"></div>
+      <div class="insight-text">
+        <strong>Enfermería es el programa estrella del 20% dcto:</strong> 29 de 31 leads vienen del único anuncio 20dcto, con CPR $28.4k — 14% más eficiente que el 25dcto de abril ($32.8k). La audiencia de Enfermería responde al mensaje de descuento directo. <strong>Recomendación: escalar presupuesto y testear variación de copy.</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 5 — LENGUAS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s5">
+  <div class="header">
+    <div class="logo"><svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg></div>
+    <div class="header-title">Lic. Lenguas Ext. — <strong>valor semestre es el driver real</strong></div>
+  </div>
+  <div class="subtitle">Mayo 1–14 (14 días) vs. Abril 1–30 (30 días) · El 20dcto solo aporta 1 lead · El mensaje de descuento no conecta en este programa</div>
+  <div class="body">
+
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="period-tag"><span class="dot" style="background:#FFC000"></span>Mayo · 14 días · 23 leads</div>
+      <div class="period-tag"><span class="dot" style="background:#888"></span>Abril · 30 días · 37 leads</div>
+    </div>
+
+    <div class="kpi-row cols-5">
+      <div class="kpi">
+        <div class="kpi-val red">1</div>
+        <div class="kpi-label">Leads 20% dcto</div>
+        <div class="kpi-sub">4.3% del total mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">17</div>
+        <div class="kpi-label">Leads 25% dcto (abril)</div>
+        <div class="kpi-sub">45.9% del total abril</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val green">14</div>
+        <div class="kpi-label">Leads valorsemestre</div>
+        <div class="kpi-sub">60.9% del total mayo</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val green">$19.6k</div>
+        <div class="kpi-label">CPR valorsemestre</div>
+        <div class="kpi-sub">Mejor CPR del programa</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">$27.8k</div>
+        <div class="kpi-label">CPR 25% dcto (abril)</div>
+        <div class="kpi-sub">referencia mes pasado</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex:1;">
+      <div style="flex:1;">
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio — Mayo</th>
+                <th class="hl">Leads</th><th>Share</th><th>Inversión</th><th>CPR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-hl">
+                <td class="left">estatico_valorsemestre2026-02_18-03 ★</td>
+                <td>14</td><td>60.9%</td><td>$275k</td><td>$19.6k</td>
+              </tr>
+              <tr>
+                <td class="left">video_liclenguasext_masquehablar_15-04</td>
+                <td>5</td><td>21.7%</td><td>$168k</td><td>$33.7k</td>
+              </tr>
+              <tr class="row-alt">
+                <td class="left">estatico_pregrado-lic-29mayo_registrarte</td>
+                <td>3</td><td>13.0%</td><td>$15k</td><td>$4.8k</td>
+              </tr>
+              <tr>
+                <td class="left">estatico_liclenguasext_20dcto_30-04</td>
+                <td>1</td><td>4.3%</td><td>$15k</td><td>$15.5k</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note" style="margin-top:4px;">★ Driver real del programa. Consistente también en abril (54.1% del volumen).</div>
+
+        <div style="margin-top:8px;font-size:7.5px;font-weight:600;color:var(--t2);margin-bottom:4px;">Top anuncios abril (30 días · 37 leads)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align:left">Anuncio</th>
+                <th>Leads</th><th>Share</th><th>CPR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="row-hl"><td class="left">estatico_valorsemestre2026-02_18-03</td><td>20</td><td>54.1%</td><td>$22.7k</td></tr>
+              <tr><td class="left">estatico_liclenguasext_25dcto_27-03</td><td>13</td><td>35.1%</td><td>$31.4k</td></tr>
+              <tr class="row-alt"><td class="left">estatico_liclenguasext_25dcto_11-04</td><td>4</td><td>10.8%</td><td>$16.2k</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="flex:0.9;display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);">Share de leads mayo — Lenguas</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">valorsemestre</div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%;background:#FFC000"><span>14 leads · 60.9%</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">video_masquehablar</div>
+            <div class="bar-track"><div class="bar-fill" style="width:35%;background:#AAAAAA"><span>5 leads · 21.7%</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">estatico_29mayo</div>
+            <div class="bar-track"><div class="bar-fill" style="width:21%;background:#CCCCCC"><span>3 leads</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">20dcto</div>
+            <div class="bar-track"><div class="bar-fill" style="width:7%;background:#1A1A1A"><span></span></div></div>
+            <div class="bar-val">1 lead · 4.3%</div>
+          </div>
+        </div>
+
+        <div style="font-size:7.5px;font-weight:600;color:var(--t2);margin-top:6px;">CPR comparado</div>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-label">valorsemestre (may)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:58%;background:#FFC000"><span>$19.6k</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">20dcto (may)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:46%;background:#CCCCCC"><span>$15.5k</span></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">25dcto (abr)</div>
+            <div class="bar-track"><div class="bar-fill" style="width:83%;background:#888888"><span style="color:#fff">$27.8k</span></div></div>
+          </div>
+        </div>
+        <div class="note">El 20dcto tiene buen CPR pero solo 1 lead — presupuesto muy bajo asignado.</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-accent"></div>
+      <div class="insight-text">
+        <strong>Lenguas:</strong> El mensaje de descuento no es el driver — el <strong>valorsemestre es consistente en ambos meses</strong> (54% en abril, 61% en mayo). El 20dcto tiene buen CPR ($15.5k) pero con solo $15k invertidos no puede escalar. Oportunidad: aumentar presupuesto al valorsemestre y probar copy de urgencia "cierre 31 mayo".
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SLIDE 6 — CONCLUSIONES -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="slide" id="s6">
+  <div class="header">
+    <div class="logo"><svg viewBox="0 0 40 40"><use href="#adcom-logo"/></svg></div>
+    <div class="header-title">Conclusiones y <strong>recomendaciones por programa</strong></div>
+  </div>
+  <div class="subtitle">Acciones sugeridas para optimizar el tramo final · Cierre campaña 20% dcto: 31 mayo 2026 · Períodos: mayo 14 días vs. abril 30 días</div>
+  <div class="body">
+    <div class="prog-cards">
+
+      <!-- Medicina -->
+      <div class="prog-card">
+        <div><span class="badge badge-red">⚠ Atención</span></div>
+        <h3>Medicina</h3>
+        <div class="divider"></div>
+        <p>El 20dcto aporta solo <strong>1 de 31 leads</strong> en mayo (3.2%). El driver real es <strong>video_estudiarmedicinaenlacorpas</strong> con 87% del volumen. En abril el 25dcto generó 30 leads a $50.7k CPR con mucho más presupuesto activo.</p>
+        <div style="margin-top:4px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;">
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;">31</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads mayo</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;">109</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads abril</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;color:var(--red);">1</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads 20dcto</div>
+            </div>
+          </div>
+        </div>
+        <div class="acc-label">Acciones sugeridas</div>
+        <div class="acc-body">
+          Escalar video_estudiarmedicinaenlacorpas · Revisar presupuesto 20dcto · Testear creatividad con countdown al 31 mayo · Evaluar si la audiencia ya está saturada del mensaje de descuento
+        </div>
+      </div>
+
+      <!-- Enfermería -->
+      <div class="prog-card">
+        <div><span class="badge badge-green">✓ Escalar</span></div>
+        <h3>Enfermería</h3>
+        <div class="divider"></div>
+        <p>Único programa donde el 20dcto funciona: <strong>29 de 31 leads (93.5%)</strong> vienen del anuncio 20dcto. CPR $28.4k, <strong>14% más eficiente</strong> que el 25dcto de abril ($32.8k). La audiencia responde claramente al mensaje de descuento directo.</p>
+        <div style="margin-top:4px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;">
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;color:var(--green);">29</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads 20dcto</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;">$28.4k</div>
+              <div style="font-size:6.5px;color:var(--t3);">CPR mayo</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;color:var(--green);">−14%</div>
+              <div style="font-size:6.5px;color:var(--t3);">vs. 25dcto abr</div>
+            </div>
+          </div>
+        </div>
+        <div class="acc-label">Acciones sugeridas</div>
+        <div class="acc-body">
+          Mantener y escalar presupuesto del 20dcto · Duplicar anuncio con variación de copy ("últimos días") · Priorizar este programa para el tramo final · No cambiar la creatividad que está funcionando
+        </div>
+      </div>
+
+      <!-- Lenguas -->
+      <div class="prog-card">
+        <div><span class="badge badge-yellow">◎ Revisar</span></div>
+        <h3>Lic. Lenguas</h3>
+        <div class="divider"></div>
+        <p>El driver no es el descuento: <strong>valorsemestre concentra el 61%</strong> de los leads en mayo (consistente con 54% en abril). El 20dcto tiene solo 1 lead pero con buen CPR ($15.5k) — problema de presupuesto, no de mensaje.</p>
+        <div style="margin-top:4px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;">
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;color:var(--red);">1</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads 20dcto</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;color:var(--green);">14</div>
+              <div style="font-size:6.5px;color:var(--t3);">leads valorsem.</div>
+            </div>
+            <div style="text-align:center;flex:1;background:var(--bg);border-radius:4px;padding:4px;">
+              <div style="font-size:11px;font-weight:700;">$19.6k</div>
+              <div style="font-size:6.5px;color:var(--t3);">CPR valorsem.</div>
+            </div>
+          </div>
+        </div>
+        <div class="acc-label">Acciones sugeridas</div>
+        <div class="acc-body">
+          Escalar presupuesto de valorsemestre · Ampliar inversión en 20dcto para validar escala · Activar urgencia "cierre 31 mayo" en copy · Evaluar estatico_29mayo_registrarte (CPR $4.8k, potencial alto)
+        </div>
+      </div>
+
+    </div>
+
+    <div class="insight">
+      <div class="insight-accent"></div>
+      <div class="insight-text">
+        <strong>Prioridad inmediata:</strong> (1) Escalar Enfermería — mayor ROI del portafolio con 20dcto · (2) Medicina: apostar al video de contenido, no al descuento · (3) Lenguas: escalar valorsemestre + probar urgencia de cierre · <strong>Nota metodológica:</strong> mayo = 14 días vs. abril = 30 días — volúmenes no son directamente comparables; leer en términos de ritmo diario y CPR.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <a href="#s1" title="Portada"></a>
+  <a href="#s2" title="Resumen"></a>
+  <a href="#s3" title="Medicina"></a>
+  <a href="#s4" title="Enfermería"></a>
+  <a href="#s5" title="Lenguas"></a>
+  <a href="#s6" title="Conclusiones"></a>
+</div>
+
+<div style="font-size:10px;color:#999;text-align:center;padding:8px 0 16px;font-family:'Poppins',sans-serif;">
+  ADCOM · Corpas Meta Ads · Mayo 2026 · Generado el 14/05/2026
+</div>
+
+</body>
+</html>
